@@ -68,6 +68,3 @@ scripts/
 # Tests
 test/
 test/fixtures/synthetic-shopify-orders.json
-
-# NPM Lock
-package-lock.json

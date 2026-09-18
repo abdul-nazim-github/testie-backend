@@ -6,7 +6,7 @@ import { Model } from 'mongoose';
 import { firstValueFrom } from 'rxjs';
 import { TelegraAuthResponse } from '../interfaces/telegra-auth-response.interface';
 import { TelegraApiLog, TelegraApiLogDocument } from '../schemas/telegra-api-log.schema';
-import { TelegraLabOrder, TelegraLabOrderDocument } from '../schemas/telegra-lab-order.schema';
+
 
 @Injectable()
 export class TelegraService {
@@ -22,7 +22,6 @@ export class TelegraService {
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
     @InjectModel(TelegraApiLog.name) private readonly apiLogModel: Model<TelegraApiLogDocument>,
-    @InjectModel(TelegraLabOrder.name) private readonly labOrderModel: Model<TelegraLabOrderDocument>,
   ) {
     this.baseUrl = this.configService.get<string>('app.telegra.baseUrl')!;
     this.username = this.configService.get<string>('app.telegra.username')!;

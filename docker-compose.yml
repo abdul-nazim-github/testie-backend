@@ -1,0 +1,31 @@
+services:
+  db:
+    image: mongo:latest
+    container_name: testie_health_db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodata:/data/db
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: testie_health_app
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - DATABASE_URI=mongodb://db:27017/testie_health
+      - SHOPIFY_WEBHOOK_SECRET=your-secret
+    depends_on:
+      db:
+        condition: service_healthy
+    command: npm run start:dev
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+
+volumes:
+  mongodata:

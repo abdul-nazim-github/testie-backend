@@ -55,31 +55,35 @@ export class ShopifyWebhookService {
         `Webhook stored and processed: id=${webhookMeta.webhookId} topic=${webhookMeta.topic} shop=${webhookMeta.shopDomain} duration=${duration}ms`,
       );
 
-      // Create patient and order in Telegra if it's an order creation webhook
-      try {
-        const patientPayload = this.buildPatientPayload(payload);
-        if (patientPayload) {
-          const patientResponse = await this.telegraService.createPatient(patientPayload);
+      // Process Telegra integration only if financial_status is 'paid'
+      if (payload.financial_status === 'paid') {
+        try {
+          const patientPayload = this.buildPatientPayload(payload);
+          if (patientPayload) {
+            const patientResponse = await this.telegraService.createPatient(patientPayload);
 
-          // Only call createOrder if the patient was successfully created
-          if (patientResponse) {
-            const orderPayload = this.buildOrderPayload(payload, patientPayload);
-            if (orderPayload) {
-              const orderResponse = await this.telegraService.createOrder(orderPayload);
-              if (orderResponse) {
-                // await this.telegraService.submitOrder(orderResponse.id);
-                this.logger.log(`Order created successfully for webhook: id=${webhookMeta.webhookId}`);
-              } else {
-                this.logger.warn(`Order creation may have failed silently. Skipping order submission for webhook: id=${webhookMeta.webhookId}`);
+            // Only call createOrder if the patient was successfully created
+            if (patientResponse) {
+              const orderPayload = this.buildOrderPayload(payload, patientPayload);
+              if (orderPayload) {
+                const orderResponse = await this.telegraService.createOrder(orderPayload);
+                if (orderResponse) {
+                  // await this.telegraService.submitOrder(orderResponse.id);
+                  this.logger.log(`Order created successfully for webhook: id=${webhookMeta.webhookId}`);
+                } else {
+                  this.logger.warn(`Order creation returned falsy. Skipping further steps for webhook: id=${webhookMeta.webhookId}`);
+                }
               }
+            } else {
+              this.logger.warn(`Patient creation returned falsy. Skipping order creation for webhook: id=${webhookMeta.webhookId}`);
             }
-          } else {
-            this.logger.warn(`Patient creation may have failed silently. Skipping order creation for webhook: id=${webhookMeta.webhookId}`);
           }
+        } catch (err: any) {
+          this.logger.error(`API call failed for webhook id=${webhookMeta.webhookId}. Execution stopped; next API will not be called.`, err?.message || err);
+          // We log the error but don't fail the webhook processing since the webhook is already stored successfully
         }
-      } catch (err: any) {
-        this.logger.error(`Failed to create patient/order for webhook: id=${webhookMeta.webhookId}`, err?.message || err);
-        // We log the error but don't fail the webhook processing since the webhook is already stored successfully
+      } else {
+        this.logger.log(`Skipping Telegra integration for webhook id=${webhookMeta.webhookId} because financial_status is '${payload.financial_status}'`);
       }
 
       return {

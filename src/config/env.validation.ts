@@ -9,6 +9,7 @@ export const envValidationSchema = Joi.object({
   DATABASE_URI: Joi.string().required(),
 
   SHOPIFY_WEBHOOK_SECRET: Joi.string().required(),
+  SHOPIFY_WEBHOOK_SHOP_DOMAIN: Joi.string().required(),
 
   TELEGRA_BASE_URL: Joi.string().uri().required(),
   TELEGRA_API_USERNAME: Joi.string().required(),

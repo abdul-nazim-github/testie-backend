@@ -8,6 +8,7 @@ export default registerAs('app', () => ({
   },
   shopify: {
     webhookSecret: process.env.SHOPIFY_WEBHOOK_SECRET,
+    shopDomain: process.env.SHOPIFY_WEBHOOK_SHOP_DOMAIN,
   },
   telegra: {
     baseUrl: process.env.TELEGRA_BASE_URL,

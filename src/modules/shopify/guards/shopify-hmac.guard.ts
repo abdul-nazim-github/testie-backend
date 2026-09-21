@@ -63,6 +63,17 @@ export class ShopifyHmacGuard implements CanActivate {
       });
     }
 
+    const expectedShopDomain = this.configService.get<string>('app.shopify.shopDomain');
+    const receivedShopDomain = req.headers['x-shopify-shop-domain'] as string | undefined;
+
+    if (expectedShopDomain && receivedShopDomain !== expectedShopDomain) {
+      this.logger.warn(`Shop domain mismatch. Expected: ${expectedShopDomain}, Received: ${receivedShopDomain}`);
+      throw new UnauthorizedException({
+        success: false,
+        message: 'Invalid shop domain',
+      });
+    }
+
     return true;
   }
 }

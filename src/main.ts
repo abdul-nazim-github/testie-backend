@@ -69,7 +69,7 @@ async function bootstrap() {
   }, pingInterval);
 
   Logger.log(
-    `⏰ Keep-alive ping scheduled every 10 minutes for ${backendUrl}/api/v1/health`,
+    `⏰ Keep-alive ping scheduled every 5 minutes for ${backendUrl}/api/v1/health`,
     'Bootstrap',
   );
 }

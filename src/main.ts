@@ -52,7 +52,7 @@ async function bootstrap() {
 
   // Keep-alive ping to prevent Render free-tier auto-shutdown
   const backendUrl = process.env.RENDER_EXTERNAL_URL || `http://localhost:${port}`;
-  const pingInterval = 5 * 60 * 1000; // 10 minutes
+  const pingInterval = 5 * 60 * 1000; // 5 minutes
 
   setInterval(() => {
     axios

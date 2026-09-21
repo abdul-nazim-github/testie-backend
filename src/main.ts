@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
+import axios from 'axios';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -48,5 +49,28 @@ async function bootstrap() {
 
   Logger.log('🗄️ Database connected successfully', 'Bootstrap');
   Logger.log(`🚀 Application is running on port: ${port}`, 'Bootstrap');
+
+  // Keep-alive ping to prevent Render free-tier auto-shutdown
+  const backendUrl = process.env.RENDER_EXTERNAL_URL || `http://localhost:${port}`;
+  const pingInterval = 10 * 60 * 1000; // 10 minutes
+
+  setInterval(() => {
+    axios
+      .get(`${backendUrl}/api/v1/health`)
+      .then((res) => {
+        Logger.log(
+          `Keep-alive ping successful (Status: ${res.status})`,
+          'KeepAlive',
+        );
+      })
+      .catch((err) => {
+        Logger.error('❌ Keep-alive ping failed', err.message, 'KeepAlive');
+      });
+  }, pingInterval);
+
+  Logger.log(
+    `⏰ Keep-alive ping scheduled every 10 minutes for ${backendUrl}/api/v1/health`,
+    'Bootstrap',
+  );
 }
 void bootstrap();
